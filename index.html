@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quick Tasks</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:40px 16px;background:#0f172a;font-family:system-ui,sans-serif;color:#e2e8f0}
+#app{width:100%;max-width:480px;background:#1e293b;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:16px}
+#app h1{margin:0;font-size:1.4rem;color:#e2e8f0}
+.input-row{display:flex;gap:8px}
+#taskInput{flex:1;padding:10px 12px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:1rem}
+#taskInput:focus{outline:none;box-shadow:0 0 0 2px #38bdf8}
+#addBtn{padding:10px 16px;border-radius:8px;border:none;background:#38bdf8;color:#0f172a;font-weight:600;cursor:pointer}
+#addBtn:hover{background:#0ea5e9}
+#addBtn:focus{outline:2px solid #38bdf8}
+#taskList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+li.task-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0f172a;border-radius:8px;padding:10px 12px}
+li.task-item span.task-text{flex:1;cursor:pointer;color:#e2e8f0}
+li.done span.task-text{color:#64748b;text-decoration:line-through}
+.del-btn{background:none;border:none;color:#f87171;cursor:pointer;font-size:1rem;padding:4px 8px;border-radius:6px}
+.del-btn:hover{background:rgba(248,113,113,.15);color:#dc5555}
+#emptyMsg{color:#94a3b8;text-align:center;margin:8px 0}
+#count{color:#94a3b8;font-size:.9rem}
+@media (max-width:400px){
+#app{padding:16px}
+.input-row{flex-direction:column}
+#addBtn{width:100%}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>Quick Tasks</h1>
+  <div class="input-row">
+    <input id="taskInput" type="text" placeholder="Add a task...">
+    <button id="addBtn">Add</button>
+  </div>
+  <ul id="taskList"></ul>
+  <p id="emptyMsg">No tasks yet.</p>
+  <p class="status"><span id="count">0 left</span></p>
+</div>
+<script>
+let tasks = [];
+let nid = 1;
+
+function render() {
+  const list = document.getElementById('taskList');
+  const empty = document.getElementById('emptyMsg');
+  const count = document.getElementById('count');
+  list.innerHTML = '';
+  tasks.forEach(t => {
+    const li = document.createElement('li');
+    li.className = 'task-item' + (t.done ? ' done' : '');
+    const span = document.createElement('span');
+    span.className = 'task-text';
+    span.textContent = t.text;
+    span.onclick = () => { t.done = !t.done; render(); };
+    const btn = document.createElement('button');
+    btn.className = 'del-btn';
+    btn.textContent = '✕';
+    btn.onclick = () => { tasks = tasks.filter(x => x.id !== t.id); render(); };
+    li.appendChild(span);
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+  empty.style.display = tasks.length === 0 ? '' : 'none';
+  count.textContent = tasks.filter(t => !t.done).length + ' left';
+}
+
+function addTask() {
+  const input = document.getElementById('taskInput');
+  const text = input.value.trim();
+  if (!text) return;
+  tasks.push({ id: nid++, text, done: false });
+  input.value = '';
+  render();
+}
+
+document.getElementById('addBtn').onclick = addTask;
+document.getElementById('taskInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addTask();
+});
+
+render();
+</script>
+</body>
+</html>
